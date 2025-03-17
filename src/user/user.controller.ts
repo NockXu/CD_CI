@@ -10,7 +10,7 @@ export const fetchUser = async (req: Request, res: Response) => {
             where: {id: parseInt(userId)},
         });
         res.status(200).send(user);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to fetch users'});
     }
 }
@@ -34,7 +34,7 @@ export const createUser = async (req: Request, res: Response) => {
             },
         });
         res.status(201).send(user);
-    } catch (error) {
+    } catch {
         res.status(500).send({error: 'Failed to create user'});
     }
 };
@@ -69,7 +69,7 @@ export const login = async (req: Request, res: Response) => {
             user: {id: user.id, email: user.email},
             message: 'Login successful',
         });
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to login'});
     }
 };

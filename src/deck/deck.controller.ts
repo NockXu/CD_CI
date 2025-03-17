@@ -10,7 +10,7 @@ export const getDecks = async (req: Request, res: Response) => {
             },
         });
         res.json(decks);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to fetch decks'});
     }
 };
@@ -30,7 +30,7 @@ export const getDeckById = async (req: Request, res: Response) => {
             return;
         }
         res.json(deck);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to fetch deck'});
     }
 };
@@ -49,7 +49,7 @@ export const createDeck = async (req: Request, res: Response) => {
             },
         });
         res.status(201).json(deck);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to create the deck'});
     }
 };
@@ -82,7 +82,7 @@ export const updateDeck = async (req: Request, res: Response) => {
         });
 
         res.status(200).json(updatedDeck);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to update the deck'});
     }
 };
@@ -93,7 +93,7 @@ export const deleteDeck = async (req: Request, res: Response) => {
     try {
         await prisma.deck.delete({where: {id: Number(deckId)}});
         res.status(204).send();
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to delete the deck'});
     }
 };

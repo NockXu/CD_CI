@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import prisma from '../client';
+import { Prisma } from '@prisma/client';
 
 export const getPokemonCards = async (req: Request, res: Response) => {
     try {
@@ -15,7 +16,7 @@ export const getPokemonCards = async (req: Request, res: Response) => {
             }
         });
         res.json(pokemonCards);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to fetch pokemonCards'});
     }
 };
@@ -31,7 +32,7 @@ export const getPokemonCardById = async (req: Request, res: Response) => {
             return;
         }
         res.json(pokemonCard);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to fetch PokemonCard'});
     }
 };
@@ -52,7 +53,7 @@ export const createPokemonCard = async (req: Request, res: Response) => {
             },
         });
         res.status(201).json(pokemonCard);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to create the PokemonCard'});
     }
 };
@@ -72,7 +73,7 @@ export const updatePokemonCard = async (req: Request, res: Response) => {
             res.status(404).json({error: 'PokemonCard not found'});
             return;
         }
-        const data: any = {};
+        const data: Prisma.PokemonCardUpdateInput = {};
         if (name) data.name = name;
         if (pokedexId) data.pokedexId = pokedexId;
         if (type) data.type = {connect: {id: Number(type)}};
@@ -86,7 +87,7 @@ export const updatePokemonCard = async (req: Request, res: Response) => {
             data,
         });
         res.status(200).json(updatedPokemonCard);
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to update the PokemonCard'});
     }
 };
@@ -97,7 +98,7 @@ export const deletePokemonCard = async (req: Request, res: Response) => {
     try {
         await prisma.pokemonCard.delete({where: {id: Number(pokemonCardId)}});
         res.status(204).send();
-    } catch (error) {
+    } catch {
         res.status(500).json({error: 'Failed to delete the PokemonCard'});
     }
 };

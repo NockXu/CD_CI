@@ -700,8 +700,6 @@ async function main() {
             weakness: {connect: {id: 3}},
         },
     });
-
-    console.log('Seed completed!');
 }
 
 main()

@@ -5,7 +5,7 @@ export const getAttacks = async (req: Request, res: Response) => {
   try {
     const attacks = await prisma.attack.findMany();
     res.json(attacks);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch attacks' });
   }
 };
@@ -21,7 +21,7 @@ export const getAttackById = async (req: Request, res: Response) => {
       return;
     }
     res.json(attack);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to fetch attack' });
   }
 };
@@ -37,7 +37,7 @@ export const createAttack = async (req: Request, res: Response) => {
       },
     });
     res.status(201).json(attack);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to create the attack' });
   }
 };
@@ -66,7 +66,7 @@ export const updateAttack = async (req: Request, res: Response) => {
     });
 
     res.status(200).json(updatedAttack);
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to update the attack' });
   }
 };
@@ -77,7 +77,7 @@ export const deleteAttack = async (req: Request, res: Response) => {
   try {
     await prisma.attack.delete({ where: { id: Number(attackId) } });
     res.status(204).send();
-  } catch (error) {
+  } catch {
     res.status(500).json({ error: 'Failed to delete the attack' });
   }
 };

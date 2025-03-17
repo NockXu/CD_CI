@@ -12,7 +12,7 @@ jest.mock('../src/client', () => ({
 // Mock de jsonwebtoken
 jest.mock('jsonwebtoken', () => ({
   ...jest.requireActual('jsonwebtoken'), // Conservez les autres fonctionnalités de jsonwebtoken
-  verify: jest.fn((token, _secret) => {
+  verify: jest.fn((token) => {
     if (token === 'mockedToken') {
       return { userId: 'mockedUserId' };
     }
@@ -23,7 +23,7 @@ jest.mock('jsonwebtoken', () => ({
 
 jest.mock('bcrypt', () => ({
   ...jest.requireActual('bcrypt'),
-  compare: jest.fn((password, cryptedPassword) => {
+  compare: jest.fn((password) => {
     if (password === 'truePassword') {
       return true;
     }

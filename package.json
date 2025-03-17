@@ -16,7 +16,9 @@
     "test:coverage": "jest --coverage --runInBand",
     "postinstall": "npm run db:reset",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prettier": "prettier --write .",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -51,9 +53,11 @@
     "@types/yamljs": "^0.2.34",
     "eslint": "^9.22.0",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "jest-mock-extended": "^4.0.0-beta1",
     "nodemon": "^3.1.9",
+    "prettier": "^3.5.3",
     "prisma": "^6.1.0",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",

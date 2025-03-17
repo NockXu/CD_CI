@@ -1,170 +1,198 @@
-import request from 'supertest';
-import { app } from '../src';
-import { prismaMock } from './jest.setup';
+import request from "supertest";
+import { app } from "../src";
+import { prismaMock } from "./jest.setup";
 
-describe('Deck API', () => {
-  describe('GET /decks', () => {
-    it('should fetch all decks', async () => {
-      const mockDecks = [
-        {
-          id: 1,
-          name: 'Electric Deck',
-          ownerId: 1,
-        },
-        { id: 2, name: 'Fire Deck', ownerId: 1 },
-      ];
+describe("Deck API", () => {
+    describe("GET /decks", () => {
+        it("should fetch all decks", async () => {
+            const mockDecks = [
+                {
+                    id: 1,
+                    name: "Electric Deck",
+                    ownerId: 1,
+                },
+                {
+                    id: 2,
+                    name: "Fire Deck",
+                    ownerId: 1,
+                },
+            ];
 
-      prismaMock.deck.findMany.mockResolvedValue(mockDecks);
+            prismaMock.deck.findMany.mockResolvedValue(mockDecks);
 
-      const response = await request(app).get('/decks');
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockDecks);
+            const response = await request(app).get("/decks");
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(mockDecks);
+        });
+
+        it("should return 500 if fetching fails", async () => {
+            prismaMock.deck.findMany.mockRejectedValue(
+                new Error("Database error"),
+            );
+
+            const response = await request(app).get("/decks");
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                error: "Failed to fetch decks",
+            });
+        });
     });
 
-    it('should return 500 if fetching fails', async () => {
-      prismaMock.deck.findMany.mockRejectedValue(new Error('Database error'));
+    describe("GET /decks/:deckId", () => {
+        it("should fetch a deck by ID", async () => {
+            const mockDeck = {
+                id: 1,
+                name: "Electric Deck",
+                ownerId: 1,
+            };
 
-      const response = await request(app).get('/decks');
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ error: 'Failed to fetch decks' });
-    });
-  });
+            prismaMock.deck.findUnique.mockResolvedValue(mockDeck);
 
-  describe('GET /decks/:deckId', () => {
-    it('should fetch a deck by ID', async () => {
-      const mockDeck = {
-        id: 1,
-        name: 'Electric Deck',
-        ownerId: 1,
-      };
+            const response = await request(app).get("/decks/1");
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(mockDeck);
+        });
 
-      prismaMock.deck.findUnique.mockResolvedValue(mockDeck);
+        it("should return 404 if deck is not found", async () => {
+            prismaMock.deck.findUnique.mockResolvedValue(null);
 
-      const response = await request(app).get('/decks/1');
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockDeck);
-    });
+            const response = await request(app).get("/decks/999");
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({
+                error: "Deck not found",
+            });
+        });
 
-    it('should return 404 if deck is not found', async () => {
-      prismaMock.deck.findUnique.mockResolvedValue(null);
+        it("should return 500 if fetching fails", async () => {
+            prismaMock.deck.findUnique.mockRejectedValue(
+                new Error("Database error"),
+            );
 
-      const response = await request(app).get('/decks/999');
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({ error: 'Deck not found' });
-    });
-
-    it('should return 500 if fetching fails', async () => {
-      prismaMock.deck.findUnique.mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app).get('/decks/1');
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ error: 'Failed to fetch deck' });
-    });
-  });
-
-  describe('POST /decks', () => {
-    it('should create a new deck', async () => {
-      const newDeck = {
-        name: 'Water Deck',
-        ownerId: 1,
-        cards: [1, 2],
-      };
-      const createdDeck = { id: 1, ...newDeck };
-
-      prismaMock.deck.create.mockResolvedValue(createdDeck);
-
-      const response = await request(app)
-        .post('/decks')
-        .set('Authorization', 'Bearer mockedToken')
-        .send(newDeck);
-
-      expect(response.status).toBe(201);
-      expect(response.body).toEqual(createdDeck);
+            const response = await request(app).get("/decks/1");
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                error: "Failed to fetch deck",
+            });
+        });
     });
 
-    it('should return 500 if creation fails', async () => {
-      prismaMock.deck.create.mockRejectedValue(new Error('Database error'));
+    describe("POST /decks", () => {
+        it("should create a new deck", async () => {
+            const newDeck = {
+                name: "Water Deck",
+                ownerId: 1,
+                cards: [1, 2],
+            };
+            const createdDeck = { id: 1, ...newDeck };
 
-      const response = await request(app)
-        .post('/decks')
-        .set('Authorization', 'Bearer mockedToken')
-        .send({ name: 'Water Deck' });
+            prismaMock.deck.create.mockResolvedValue(createdDeck);
 
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ error: 'Failed to create the deck' });
-    });
-  });
+            const response = await request(app)
+                .post("/decks")
+                .set("Authorization", "Bearer mockedToken")
+                .send(newDeck);
 
-  describe('PATCH /decks/:deckId', () => {
-    it('should update an existing deck', async () => {
-      const updatedData = {
-        name: 'Updated Deck',
-        ownerId: 1,
-        cards: [1, 3],
-      };
-      const updatedDeck = { id: 1, ...updatedData };
+            expect(response.status).toBe(201);
+            expect(response.body).toEqual(createdDeck);
+        });
 
-      prismaMock.deck.findUnique.mockResolvedValue(updatedDeck);
-      prismaMock.deck.update.mockResolvedValue(updatedDeck);
+        it("should return 500 if creation fails", async () => {
+            prismaMock.deck.create.mockRejectedValue(
+                new Error("Database error"),
+            );
 
-      const response = await request(app)
-        .patch('/decks/1')
-        .set('Authorization', 'Bearer mockedToken')
-        .send(updatedData);
+            const response = await request(app)
+                .post("/decks")
+                .set("Authorization", "Bearer mockedToken")
+                .send({ name: "Water Deck" });
 
-      expect(response.status).toBe(200);
-      expect(response.body).toEqual(updatedDeck);
-    });
-
-    it('should return 404 if deck is not found', async () => {
-      prismaMock.deck.findUnique.mockResolvedValue(null);
-
-      const response = await request(app)
-        .patch('/decks/999')
-        .set('Authorization', 'Bearer mockedToken')
-        .send({ name: 'Updated Deck' });
-
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({ error: 'Deck not found' });
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                error: "Failed to create the deck",
+            });
+        });
     });
 
-    it('should return 500 if update fails', async () => {
-      prismaMock.deck.findUnique.mockRejectedValue(new Error('Database error'));
+    describe("PATCH /decks/:deckId", () => {
+        it("should update an existing deck", async () => {
+            const updatedData = {
+                name: "Updated Deck",
+                ownerId: 1,
+                cards: [1, 3],
+            };
+            const updatedDeck = { id: 1, ...updatedData };
 
-      const response = await request(app)
-        .patch('/decks/1')
-        .set('Authorization', 'Bearer mockedToken')
-        .send({ name: 'Updated Deck' });
+            prismaMock.deck.findUnique.mockResolvedValue(updatedDeck);
+            prismaMock.deck.update.mockResolvedValue(updatedDeck);
 
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ error: 'Failed to update the deck' });
+            const response = await request(app)
+                .patch("/decks/1")
+                .set("Authorization", "Bearer mockedToken")
+                .send(updatedData);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual(updatedDeck);
+        });
+
+        it("should return 404 if deck is not found", async () => {
+            prismaMock.deck.findUnique.mockResolvedValue(null);
+
+            const response = await request(app)
+                .patch("/decks/999")
+                .set("Authorization", "Bearer mockedToken")
+                .send({ name: "Updated Deck" });
+
+            expect(response.status).toBe(404);
+            expect(response.body).toEqual({
+                error: "Deck not found",
+            });
+        });
+
+        it("should return 500 if update fails", async () => {
+            prismaMock.deck.findUnique.mockRejectedValue(
+                new Error("Database error"),
+            );
+
+            const response = await request(app)
+                .patch("/decks/1")
+                .set("Authorization", "Bearer mockedToken")
+                .send({ name: "Updated Deck" });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                error: "Failed to update the deck",
+            });
+        });
     });
-  });
 
-  describe('DELETE /decks/:deckId', () => {
-    it('should delete a deck', async () => {
-      prismaMock.deck.delete.mockResolvedValue({
-        id: 1,
-        name: 'Electric Deck',
-        ownerId: 1,
-      });
+    describe("DELETE /decks/:deckId", () => {
+        it("should delete a deck", async () => {
+            prismaMock.deck.delete.mockResolvedValue({
+                id: 1,
+                name: "Electric Deck",
+                ownerId: 1,
+            });
 
-      const response = await request(app)
-        .delete('/decks/1')
-        .set('Authorization', 'Bearer mockedToken');
+            const response = await request(app)
+                .delete("/decks/1")
+                .set("Authorization", "Bearer mockedToken");
 
-      expect(response.status).toBe(204);
+            expect(response.status).toBe(204);
+        });
+
+        it("should return 500 if deletion fails", async () => {
+            prismaMock.deck.delete.mockRejectedValue(
+                new Error("Database error"),
+            );
+
+            const response = await request(app)
+                .delete("/decks/1")
+                .set("Authorization", "Bearer mockedToken");
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({
+                error: "Failed to delete the deck",
+            });
+        });
     });
-
-    it('should return 500 if deletion fails', async () => {
-      prismaMock.deck.delete.mockRejectedValue(new Error('Database error'));
-
-      const response = await request(app)
-        .delete('/decks/1')
-        .set('Authorization', 'Bearer mockedToken');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({ error: 'Failed to delete the deck' });
-    });
-  });
 });

@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
-import prisma from '../client';
+import { Request, Response } from "express";
+import prisma from "../client";
 
 export const getAttacks = async (req: Request, res: Response) => {
   try {
     const attacks = await prisma.attack.findMany();
     res.json(attacks);
   } catch {
-    res.status(500).json({ error: 'Failed to fetch attacks' });
+    res.status(500).json({ error: "Failed to fetch attacks" });
   }
 };
 
@@ -17,12 +17,12 @@ export const getAttackById = async (req: Request, res: Response) => {
       where: { id: Number(attackId) },
     });
     if (!attack) {
-      res.status(404).json({ error: 'Attack not found' });
+      res.status(404).json({ error: "Attack not found" });
       return;
     }
     res.json(attack);
   } catch {
-    res.status(500).json({ error: 'Failed to fetch attack' });
+    res.status(500).json({ error: "Failed to fetch attack" });
   }
 };
 
@@ -38,7 +38,7 @@ export const createAttack = async (req: Request, res: Response) => {
     });
     res.status(201).json(attack);
   } catch {
-    res.status(500).json({ error: 'Failed to create the attack' });
+    res.status(500).json({ error: "Failed to create the attack" });
   }
 };
 
@@ -52,7 +52,7 @@ export const updateAttack = async (req: Request, res: Response) => {
     });
 
     if (!existingAttack) {
-      res.status(404).json({ error: 'Attack not found' });
+      res.status(404).json({ error: "Attack not found" });
       return;
     }
 
@@ -67,7 +67,7 @@ export const updateAttack = async (req: Request, res: Response) => {
 
     res.status(200).json(updatedAttack);
   } catch {
-    res.status(500).json({ error: 'Failed to update the attack' });
+    res.status(500).json({ error: "Failed to update the attack" });
   }
 };
 
@@ -78,6 +78,6 @@ export const deleteAttack = async (req: Request, res: Response) => {
     await prisma.attack.delete({ where: { id: Number(attackId) } });
     res.status(204).send();
   } catch {
-    res.status(500).json({ error: 'Failed to delete the attack' });
+    res.status(500).json({ error: "Failed to delete the attack" });
   }
 };
